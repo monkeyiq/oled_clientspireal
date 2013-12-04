@@ -2,8 +2,6 @@
 #include <SPI.h>
 #include <Shim_CharacterOLEDSPI2.h>
 
-#include <SoftwareSerial.h>
-SoftwareSerial* ss = 0;
 
 // initialize the library, pin numbers are ignored but taken for compatibility
 Shim_CharacterOLEDSPI2 lcd(6, 7, 8, 9, 10, 11, 12);
@@ -25,53 +23,27 @@ void setup()
   SPI.setClockDivider(SPI_CLOCK_DIV4);
   SPI.setBitOrder( MSBFIRST );
 
-  ss = new SoftwareSerial( 2, 3 );
-  ss->begin(9600);
-  
   // setup communications to the attiny84
   lcd.shim_setup( chipSelect );
   
-
-Serial.println("waiting");
-delay(5000);
-Serial.println("here we go");
+  Serial.println("waiting");
+  delay(5000);
+  Serial.println("here we go");
 
 //  digitalWrite( chipSelect, LOW );
-//  delay(500);
-  
-    lcd.begin(16, 2);// Initialize the LCD with 16 characters and 2 lines
 
+  lcd.begin(16, 2);// Initialize the LCD with 16 characters and 2 lines
 }
 
-void proxySerial()
-{
-  while (ss->available())
-    Serial.write(ss->read());  
-  delay(100);
-  while (ss->available())
-    Serial.write(ss->read());  
-}
 void loop() 
 {
-  //Serial.println("loop()");
-   proxySerial();
-   
-   #if 0 
-    SPI.transfer('m');
-    delay(100);
-    SPI.transfer('3');
-    delay(100);
-    SPI.transfer('2');
-    delay(100);
-    SPI.transfer('1');
-    delay(100);
-  #endif
+    Serial.println("loop()");
   
-  lcd.print("abc");
+   // lcd.print("abc");
   
-  scrollingMarquee();
-//  counter();
-//  tempAndHumidity();
+    scrollingMarquee();
+    counter();
+    tempAndHumidity();
  }
 //-------------------------------------------------------------------------------------------
 void scrollingMarquee()
@@ -80,20 +52,14 @@ void scrollingMarquee()
   lcd.clear(); // it's always good to clear the screen before movonh onto a new print
   for(int j = 0; j < 17; j++)
   {
-    Serial.println("cs, loop.");
-    Serial.flush();
     lcd.setCursor(0, 0);
     lcd.print("SPARK");
-   proxySerial();
     
     lcd.setCursor(0, 1);
     lcd.print(" FUN ");
 
     lcd.scrollDisplayRight();
-
-   proxySerial();
     delay(100);
-
   }
 }
 //-------------------------------------------------------------------------------------------
