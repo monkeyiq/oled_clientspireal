@@ -30,7 +30,8 @@ void setup()
   delay(5000);
   Serial.println("here we go");
 
-//  digitalWrite( chipSelect, LOW );
+  // We will hold that chip for all time
+  //  lcd.selectChip();
 
   lcd.begin(16, 2);// Initialize the LCD with 16 characters and 2 lines
 }
@@ -48,6 +49,9 @@ void loop()
 //-------------------------------------------------------------------------------------------
 void scrollingMarquee()
 {
+  // Do not select/unselect the chip for this transition.
+//  ChipSelectionRAII csholder( &lcd );
+
 //This function scroll text across the screen on both lines
   lcd.clear(); // it's always good to clear the screen before movonh onto a new print
   for(int j = 0; j < 17; j++)
