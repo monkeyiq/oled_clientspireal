@@ -45,6 +45,16 @@ void loop()
     scrollingMarquee();
     counter();
     tempAndHumidity();
+    
+    Serial.println("waiting for a bit so that the screen sleeps for us");
+    delay(5000);
+    Serial.println("5 sec");
+    delay(5000);
+    Serial.println("10 sec");
+    delay(5000);
+    Serial.println("15 sec");
+    delay(5000);
+    Serial.println("wake up!");
  }
 //-------------------------------------------------------------------------------------------
 void scrollingMarquee()
