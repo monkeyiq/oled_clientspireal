@@ -1,4 +1,32 @@
-
+/**
+ * This code is based on 
+ *  The public domain code at https://learn.sparkfun.com/tutorials/oled-display-hookup-guide/firmware
+ *
+ *  A goal has been to minimize the changes needed to use the attiny84
+ *  as a display driver.
+ *
+ *  They are mostly:
+ *  1) use Shim_CharacterOLEDSPI2 as the LCD class instead of Adafruit_CharacterOLED
+ *  2) call lcd.shim_setup( chipSelect ) with the chip select pin that we use to talk
+ *  to the attiny84.
+ *  3) Using pin 7 as a power pin to supply current to the attiny and the OLED screen.
+ *     This way, setting 7 low turns it all off, setting it high turns on the screen
+ *     and we can init the screen and go on from there.
+ *
+ *  Part 3 is optional but very handy for mobile devices where you want to get as
+ *  low a current draw from the screen as possible.
+ *  
+ *  Some ballpark power consumption figures of the attiny+oled on the pin 7:
+ *  
+ *  19.3 mA screen + attiny84 (showing temp+humidity text on screen)
+ *   5.8 mA attiny asleep and screen showing all black
+ *   1.3 mA attiny asleep, screen all black, screen internal power down
+ *   0.3 mA attiny asleep, no screen attached at all
+ *   0.0 mA with pin 7 set low.
+ *
+ *   Perhaps 1.3mA is OK, but I haven't been able to work out how to
+ *   turn the OLED internal power back on successfully.
+ */
 #include <SPI.h>
 #include <Shim_CharacterOLEDSPI2.h>
 
@@ -12,11 +40,13 @@ void setup()
   pinMode(chipSelect, OUTPUT);
   digitalWrite( chipSelect, HIGH );
 
+  pinMode(7, OUTPUT);
+  digitalWrite( 7, HIGH );
+
 
   // have the TX/RX serial on the arduino talk to the computer
   Serial.begin(57600);
   Serial.println("setup()");
-  Serial.print("shim setup(1452) 27 nov...\n");
  
   SPI.begin();
   SPI.setDataMode(SPI_MODE0);
@@ -27,7 +57,7 @@ void setup()
   lcd.shim_setup( chipSelect );
   
   Serial.println("waiting");
-  delay(5000);
+  delay(1000);
   Serial.println("here we go");
 
   // We will hold that chip for all time
@@ -54,7 +84,20 @@ void loop()
     delay(5000);
     Serial.println("15 sec");
     delay(5000);
+    
+
+    /*
+     * Drop power to pin 7 effectively cutting off the attiny84 and OLED
+     * from any juice. This "turns it off" to go down to a massive 0mA draw.
+     */
+    Serial.println("Completely drop power to the display area...");
+    digitalWrite( 7, LOW );    
+    delay(5000);
+    
     Serial.println("wake up!");
+    digitalWrite( 7, HIGH );    
+    delay(1000);
+    lcd.begin(16, 2);
  }
 //-------------------------------------------------------------------------------------------
 void scrollingMarquee()
